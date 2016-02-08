@@ -67,9 +67,14 @@
     group=influxdb
     mode=644
 
-- name: enable influx on boot
+- name: install upstart script
   become: true
-  command: "update-rc.d influxdb defaults"
+  copy: >
+    src=upstart.conf
+    dest=/etc/init/influxdb.conf
+    owner=root
+    group=root
+    mode=644
 
 - name: start influxdb
   become: true
