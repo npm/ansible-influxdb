@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  author: "C J Silverio"
+  company: npm
+  license: MIT
+  min_ansible_version: 1.3
+  platforms:
+   - name: Ubuntu
+     versions:
+      - trusty
+  categories:
+   - database: npm

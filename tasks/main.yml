@@ -1,0 +1,92 @@
+- name: create influxdb group
+  become: true
+  group: >
+    name=influxdb
+
+- name: create influxdb user
+  become: true
+  user: >
+    name=influxdb
+    group=influxdb
+    createhome=no
+
+- name: create influxdb directories on /mnt
+  become: true
+  file: >
+    path={{item}}
+    state=directory
+    owner=influxdb
+    group=influxdb
+    mode=774
+  with_items:
+    - "/mnt/influxdb"
+    - "/mnt/influxdb/shared"
+    - "/mnt/influxdb/shared/log"
+    - "/mnt/influxdb/shared/data"
+    - "/mnt/influxdb/shared/meta"
+    - "/etc/opt"
+    - "/etc/opt/influxdb"
+
+- name: create a link to the log directory
+  become: true
+  file: >
+    state=link
+    src=/mnt/influxdb/shared/log
+    dest=/var/log/influxdb
+    force=yes
+
+- name: create a logrotate config for influxdb
+  become: true
+  copy: >
+    src=logrotate.conf
+    dest=/etc/logrotate.d/influxdb
+    owner=root
+    group=root
+    mode=644
+
+- name: download deb file
+  get_url: >
+    url=http://s3.amazonaws.com/influxdb/influxdb_{{influxdb_version}}_amd64.deb
+    dest=/home/ubuntu
+
+- name: install from deb file
+  become: true
+  command:  "dpkg -i --force-confdef influxdb_{{influxdb_version}}_amd64.deb"
+
+- name: clean up deb file
+  file: >
+    path=/home/ubuntu/influxdb_{{influxdb_version}}_amd64.deb
+    state=absent
+
+- name: copy influxdb config
+  become: true
+  template: >
+    src=influx.conf.j2
+    dest=/etc/influxdb/influxdb.conf
+    owner=influxdb
+    group=influxdb
+    mode=644
+
+- name: enable influx on boot
+  become: true
+  command: "update-rc.d influxdb defaults"
+
+- name: start influxdb
+  become: true
+  service: name=influxdb state=restarted
+
+- name: create influxdb admins
+  command: "influx -execute \"CREATE USER {{item.user}} WITH PASSWORD '{{item.pass}}' WITH ALL PRIVILEGES\""
+  with_items: influxdb_admin_users
+
+- name: create influxdb users
+  command: "influx -username '{{influxdb_admin_users[0].user}}' -password '{{influxdb_admin_users[0].pass}}' -execute \"CREATE USER {{item.user}} WITH PASSWORD '{{item.pass}}'\""
+  with_items: influxdb_users
+
+- name: create influxdb databases
+  command: "influx -username '{{influxdb_admin_users[0].user}}' -password '{{influxdb_admin_users[0].pass}}' -execute \"CREATE DATABASE IF NOT EXISTS {{item}}\""
+  with_items: influxdb_databases
+
+- name: create influxdb grants
+  command: "influx -username '{{influxdb_admin_users[0].user}}' -password '{{influxdb_admin_users[0].pass}}' -execute \"GRANT {{item.privilege}} ON {{item.database}} TO {{item.user}}\""
+  with_items: influxdb_grants
