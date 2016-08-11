@@ -46,8 +46,7 @@
 
 - name: download deb file
   get_url: >
-    url=https://dl.influxdata.com/influxdb/releases/influxdb_{{influxdb_version}}_amd64.deb
-    validate_certs=False
+    url=http://dl.influxdata.com/influxdb/releases/influxdb_{{influxdb_version}}_amd64.deb
     dest=/home/ubuntu
 
 - name: install from deb file
