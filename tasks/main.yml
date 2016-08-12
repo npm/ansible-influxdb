@@ -26,6 +26,7 @@
     - "/mnt/influxdb/shared/meta"
     - "/etc/opt"
     - "/etc/opt/influxdb"
+    - "/var/run/influxdb"
 
 - name: create a link to the log directory
   become: true
@@ -45,9 +46,7 @@
     mode=644
 
 - name: download deb file
-  get_url: >
-    url=http://dl.influxdata.com/influxdb/releases/influxdb_{{influxdb_version}}_amd64.deb
-    dest=/home/ubuntu
+  shell: cd /home/ubuntu && wget https://dl.influxdata.com/influxdb/releases/influxdb_{{influxdb_version}}_amd64.deb
 
 - name: install from deb file
   become: true
