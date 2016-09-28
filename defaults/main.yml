@@ -1,5 +1,6 @@
-influxdb_version: 0.13.0
+influxdb_version: 1.0.0
 influxdb_admin_users: []
 influxdb_users: []
 influxdb_databases: []
 influxdb_grants: []
+influxdb_path_prefix: /mnt/influxdb
