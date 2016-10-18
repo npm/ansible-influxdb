@@ -49,6 +49,7 @@ reporting-disabled = false
   # These are the WAL settings for the storage engine >= 0.9.3
   wal-dir = "{{influxdb_path_prefix}}/shared/wal"
   wal-logging-enabled = true
+  max-series-per-database = 0
 
   # Trace logging provides more verbose output around the tsm engine. Turning
   # this on can provide more useful output for debugging tsm engine issues.
