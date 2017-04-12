@@ -81,16 +81,16 @@
 
 - name: create influxdb admins
   command: "influx -execute \"CREATE USER {{item.user}} WITH PASSWORD '{{item.pass}}' WITH ALL PRIVILEGES\""
-  with_items: influxdb_admin_users
+  with_items: "{{influxdb_admin_users}}"
 
 - name: create influxdb users
   command: "influx -username '{{influxdb_admin_users[0].user}}' -password '{{influxdb_admin_users[0].pass}}' -execute \"CREATE USER {{item.user}} WITH PASSWORD '{{item.pass}}'\""
-  with_items: influxdb_users
+  with_items: "{{influxdb_users}}"
 
 - name: create influxdb databases
-  command: "influx -username '{{influxdb_admin_users[0].user}}' -password '{{influxdb_admin_users[0].pass}}' -execute \"CREATE DATABASE IF NOT EXISTS {{item}}\""
-  with_items: influxdb_databases
+  command: "influx -username '{{influxdb_admin_users[0].user}}' -password '{{influxdb_admin_users[0].pass}}' -execute \"CREATE DATABASE {{item}}\""
+  with_items: "{{influxdb_databases}}"
 
 - name: create influxdb grants
   command: "influx -username '{{influxdb_admin_users[0].user}}' -password '{{influxdb_admin_users[0].pass}}' -execute \"GRANT {{item.privilege}} ON {{item.database}} TO {{item.user}}\""
-  with_items: influxdb_grants
+  with_items: "{{influxdb_grants}}"
